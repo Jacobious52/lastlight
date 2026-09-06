@@ -3,6 +3,13 @@ use bevy::prelude::*;
 /// Shared by camera and pointer projection.
 pub const VIEW_HEIGHT: f32 = 390.0;
 
+/// Essential scene assets must be available before the title accepts input.
+#[derive(Resource, Default)]
+pub struct SceneLoading {
+    pub ready: bool,
+    pub failed: bool,
+}
+
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Mode {
     Title,

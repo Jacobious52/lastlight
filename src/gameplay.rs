@@ -80,7 +80,11 @@ fn controls(
     mut game: ResMut<Game>,
     mut cues: ResMut<AudioCues>,
     mut dark_toggle: Local<bool>,
+    loading: Option<Res<SceneLoading>>,
 ) {
+    if loading.is_some_and(|state| !state.ready) {
+        return;
+    }
     if keys.just_pressed(KeyCode::KeyM) {
         game.muted = !game.muted;
     }

@@ -104,9 +104,10 @@ mod traveller_tests {
 
 impl Plugin for RenderPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(Material2dPlugin::<CavernMaterial>::default())
+        app.init_resource::<SceneLoading>()
+            .add_plugins(Material2dPlugin::<CavernMaterial>::default())
             .add_systems(Startup, setup)
-            .add_systems(PostUpdate, update_view);
+            .add_systems(PostUpdate, (check_scene_loading, update_view));
     }
 }
 
@@ -178,6 +179,29 @@ impl Material2d for CavernMaterial {
     fn fragment_shader() -> ShaderRef {
         "shaders/world.wgsl".into()
     }
+}
+
+#[derive(Resource)]
+struct SceneAssets(Vec<bevy::asset::UntypedHandle>);
+
+fn check_scene_loading(
+    server: Res<AssetServer>,
+    assets: Res<SceneAssets>,
+    mut loading: ResMut<SceneLoading>,
+) {
+    if loading.ready || loading.failed {
+        return;
+    }
+    loading.failed = assets.0.iter().any(|h| {
+        matches!(
+            server.get_load_state(h.id()),
+            Some(bevy::asset::LoadState::Failed(_))
+        )
+    });
+    loading.ready = assets
+        .0
+        .iter()
+        .all(|h| server.is_loaded_with_dependencies(h.id()));
 }
 
 #[derive(Resource)]
@@ -284,6 +308,22 @@ fn setup(
         traveller_idle: server.load("art/traveller-idle.png"),
         objects: server.load("art/objects.png"),
     });
+    let art = materials
+        .get(&material)
+        .expect("Just created scene material");
+    commands.insert_resource(SceneAssets(vec![
+        art.ground.clone().untyped(),
+        art.traveller.clone().untyped(),
+        art.hauler.clone().untyped(),
+        art.terrain.clone().untyped(),
+        art.ecosystem.clone().untyped(),
+        art.traveller_vertical.clone().untyped(),
+        art.traveller_idle.clone().untyped(),
+        art.objects.clone().untyped(),
+        server
+            .load::<bevy::shader::Shader>("shaders/world.wgsl")
+            .untyped(),
+    ]));
     commands.insert_resource(CavernCanvas(material.clone(), game.seed));
     let mut target = Image::new_target_texture(1280, 800, TextureFormat::Rgba8UnormSrgb, None);
     target.texture_descriptor.usage |= TextureUsages::TEXTURE_BINDING;

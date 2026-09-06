@@ -104,6 +104,10 @@ fn setup(mut commands: Commands) {
                 ..default()
             },
             TextColor(color),
+            TextShadow {
+                offset: Vec2::new(1.5, 1.5),
+                color: Color::BLACK,
+            },
             TextLayout::new_with_justify(justify),
             Node {
                 position_type: PositionType::Absolute,
@@ -113,6 +117,7 @@ fn setup(mut commands: Commands) {
         ));
     }
 }
+#[allow(clippy::too_many_arguments)]
 fn update(
     game: Res<Game>,
     world: Res<WorldMap>,
@@ -121,7 +126,39 @@ fn update(
     mut texts: Query<(&UiPart, &mut Text, &mut TextColor)>,
     mut status_clock: Local<f32>,
     mut frame_average: Local<f32>,
+    loading: Option<Res<SceneLoading>>,
 ) {
+    if let Some(loading) = loading.as_ref().filter(|state| !state.ready) {
+        for (part, mut text, _) in &mut texts {
+            let message = if !cfg!(target_arch = "wasm32") && matches!(part, UiPart::Menu) {
+                if loading.failed {
+                    "Unable to load the artwork. Restart to retry."
+                } else {
+                    "Loading..."
+                }
+            } else {
+                ""
+            };
+            if text.0 != message {
+                text.0 = message.into();
+            }
+        }
+        #[cfg(target_arch = "wasm32")]
+        if let Some(document) = web_sys::window().and_then(|w| w.document()) {
+            if let Some(status) = document.get_element_by_id("game-status") {
+                let _ = status.set_attribute("data-ready", "false");
+            }
+            if loading.failed {
+                if let Some(detail) = document.get_element_by_id("load-detail") {
+                    detail.set_text_content(Some("Artwork could not load. Reload to try again."));
+                }
+                if let Some(retry) = document.get_element_by_id("load-retry") {
+                    let _ = retry.remove_attribute("hidden");
+                }
+            }
+        }
+        return;
+    }
     let playing_hint = crate::guidance::playing_hint(&game, &world);
     for (part, mut text, mut color) in &mut texts {
         if matches!(part, UiPart::Lantern | UiPart::Bell) {
@@ -266,6 +303,7 @@ fn update(
     #[cfg(target_arch = "wasm32")]
     if let Some(document) = web_sys::window().and_then(|w| w.document()) {
         if let Some(status) = document.get_element_by_id("game-status") {
+            let _ = status.set_attribute("data-ready", "true");
             let _ = status.set_attribute("data-hint", &playing_hint);
             status.set_text_content(Some(&format!("{:?}; {}; position {:.0},{:.0}; anchor {}; veil {}; resonators {}; secrets {}; deaths {}; seed {}; frame {:.1}ms",game.mode,world.rooms[game.room].name,game.player.x,game.player.y,game.has_anchor,game.has_veil,game.resonators,game.secrets,game.deaths,world.seed,*frame_average*1000.)));
             let _ = status.set_attribute(

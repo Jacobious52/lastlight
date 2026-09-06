@@ -5,12 +5,12 @@
 <meta name="theme-color" content="#030303"><meta name="description" content="Last Light — a procedural exploration horror game built in Rust and Bevy.">
 <title>Last Light</title>
 <style>
-*{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;background:#030303;overflow:hidden;color:#b7b7b7;font-family:monospace}#game{width:100%;height:100%;display:block;outline:none}#loading{position:fixed;inset:0;display:grid;place-content:center;text-align:center;letter-spacing:.35em;line-height:3;font-size:14px;pointer-events:none}#loading[hidden]{display:none}#loading small{font-size:11px;letter-spacing:.1em;color:#686868}.accessible{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+*{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;background:#030303;overflow:hidden;color:#b7b7b7;font-family:monospace}#game{width:100%;height:100%;display:block;outline:none}#loading{position:fixed;inset:0;display:grid;place-content:center;text-align:center;letter-spacing:.35em;line-height:3;font-size:14px;pointer-events:none}#loading[hidden]{display:none}#load-retry{pointer-events:auto;margin:12px auto;background:transparent;border:1px solid #555;color:#bbb;padding:8px 18px;font:inherit;letter-spacing:0;cursor:pointer}#load-retry[hidden]{display:none}#loading small{font-size:11px;letter-spacing:.1em;color:#686868}.accessible{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 </style>
 </head>
 <body>
 <canvas id="game" tabindex="0" aria-label="Last Light game. Enter to begin. WASD or click to move, Space to pulse, Shift or X for darkness, E to set down a lantern, R to interact, Q to throw the found bell, Tab for memory, Escape to pause."></canvas>
-<div id="loading">LAST LIGHT<small id="load-detail">Loading the world</small></div>
+<div id="loading">LAST LIGHT<small id="load-detail">Loading the world</small><button id="load-retry" hidden>Reload</button></div>
 <output id="game-status" class="accessible" aria-label="Game status"></output>
 <script>
 // One content revision for code, shaders, artwork and audio. Returning players
@@ -18,15 +18,30 @@
 const build='__LASTLIGHT_BUILD__';
 document.getElementById('game-status').setAttribute('data-build',build);
 const fetchResource=window.fetch.bind(window);
-window.fetch=(resource,options)=>{
+window.fetch=async(resource,options)=>{
   const url=new URL(resource instanceof Request?resource.url:resource,location.href);
   const assetRoot=new URL('./assets/',location.href);
-  if(url.origin===assetRoot.origin&&url.pathname.startsWith(assetRoot.pathname)){
+  const asset=url.origin===assetRoot.origin&&url.pathname.startsWith(assetRoot.pathname);
+  if(asset){
     url.searchParams.set('build',build);
     resource=resource instanceof Request?new Request(url,resource):url;
   }
-  return fetchResource(resource,options);
+  // Transient network failures must not strand Bevy with an empty material.
+  // Only replay same-origin asset GETs; never retry an aborted request or a write.
+  const method=(options?.method || (resource instanceof Request?resource.method:'GET')).toUpperCase();
+  const attempts=asset&&method==='GET'?3:1;
+  for(let attempt=0;attempt<attempts;attempt++){
+    try {
+      const response=await fetchResource(resource instanceof Request?resource.clone():resource,options);
+      if(response.status<500 || attempt===attempts-1) return response;
+      await response.body?.cancel();
+    } catch(error) {
+      if(error.name==='AbortError'||attempt===attempts-1) throw error;
+    }
+    await new Promise(resolve=>setTimeout(resolve,250*(attempt+1)));
+  }
 };
+document.getElementById('load-retry').addEventListener('click',()=>location.reload());
 // AudioContext must be resumed inside the user's gesture, including contexts
 // created by CPAL during startup. No sound starts until the player begins.
 const contexts=new Set();
@@ -41,6 +56,6 @@ window.addEventListener('error',e=>{document.getElementById('load-detail').textC
 <script type="module">
 import init from './lastlight.js?build=__LASTLIGHT_BUILD__';
 try { await init({module_or_path:new URL('./lastlight_bg.wasm?build=__LASTLIGHT_BUILD__',import.meta.url)}); document.querySelector('canvas').focus(); }
-catch(e) {document.getElementById('loading').hidden=false;document.getElementById('load-detail').textContent='Unable to start. This game requires WebGL 2. '+e.message;console.error(e);}
+catch(e) {document.getElementById('loading').hidden=false;document.getElementById('load-retry').hidden=false;document.getElementById('load-detail').textContent='Unable to start. This game requires WebGL 2. '+e.message;console.error(e);}
 </script>
 </body></html>

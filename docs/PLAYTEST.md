@@ -518,3 +518,34 @@ Lantern and bell cues share the input eligibility checks. Lantern availability
 returns after the placement cooldown; a thrown bell needs retrieval. Additional
 regressions cover cancelled placement readiness, darkness hints at distance
 boundaries, pulse readiness, and bell throw/retrieve availability.
+
+## Final pre-share polish — 2026-09-07
+
+A fresh browser start exposed two transient artwork fetch failures. The scene
+was black but Enter still started gameplay. Asset GETs now retry transient
+network/5xx errors at most three times. Aborted requests, writes and external
+requests are never retried. The title waits for its eight artwork atlases and
+shader before accepting input; a terminal failure displays a reload button.
+The existing save is untouched during loading. Native startup has equivalent
+input gating and an explicit failure message.
+
+An isolated local server deliberately returned two 503s for the traveller atlas:
+the browser recovered to the title without Bevy asset errors. A separate server
+returned a persistent 404: the reload screen remained visible and Enter did not
+start gameplay. Browser inspection caught duplicate native/HTML error text,
+which was removed. Four executable loader regressions now run in CI, and a real
+ECS regression ensures failed or incomplete scene assets cannot start the game.
+
+Focused browser replays covered opening movement and the pulse membrane into
+Fold, bell acquisition, both actual ability acquisitions, earned lantern
+placement, the memory/ability summary, and the final extinction into Ending.
+The score was observed playing at 55.6 seconds with the audio context running.
+Text over the bright discovery pulse was difficult to read, so UI text now has
+a small dark shadow. Updated discovery and memory screens were inspected.
+Frames settled around 16.6–16.8 ms. No new gameplay regression was found in these
+checks. This was not another continuous campaign or subjective headphone test.
+
+All 58 Rust tests pass, including three complete ECS progression journeys,
+collision and creature rules, held input, checkpoints, save migration and
+thousands of generated seeds. Formatting, strict Clippy, the four loader tests,
+and production WASM build/package checks also pass.

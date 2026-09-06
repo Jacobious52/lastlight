@@ -1206,3 +1206,18 @@ fn lantern_readiness_tracks_placement_cancellation_and_cooldown() {
     tick(&mut app, 26);
     assert!(app.world().resource::<Game>().lantern_ready());
 }
+
+#[test]
+fn missing_scene_assets_do_not_allow_a_blind_start() {
+    let mut app = simulation(72419);
+    app.world_mut().resource_mut::<Game>().mode = Mode::Title;
+    app.insert_resource(SceneLoading::default());
+    tap(&mut app, KeyCode::Enter);
+    assert_eq!(app.world().resource::<Game>().mode, Mode::Title);
+    app.world_mut().resource_mut::<SceneLoading>().failed = true;
+    tap(&mut app, KeyCode::Enter);
+    assert_eq!(app.world().resource::<Game>().mode, Mode::Title);
+    app.world_mut().resource_mut::<SceneLoading>().ready = true;
+    tap(&mut app, KeyCode::Enter);
+    assert_eq!(app.world().resource::<Game>().mode, Mode::Playing);
+}
