@@ -15,6 +15,7 @@ struct Scene {
     tools: vec4<f32>,
     placement: vec4<f32>,
     bell: vec4<f32>,
+    traveller: vec4<f32>,
     finds: array<vec4<f32>, 16>,
     roots: array<vec4<f32>, 108>,
     root_widths: array<vec4<f32>, 108>,
@@ -197,17 +198,15 @@ fn fragment(mesh: VertexOutput) -> @location(0) vec4<f32> {
         return vec4(vec3(dot(memory, vec3(0.333333)) + 0.001), 1.0);
     }
     let vertical=abs(scene.appearance.y)>abs(scene.appearance.x)*1.2;
-    let phase=scene.motion.x/76.0*48.0;
-    let body_bob=-1.0*cos(floor(phase)/48.0*TAU*2.0);
     let idle_sway=sin(time*0.73)*0.012*scene.feedback.w;
     let placing_bend=select(0.0,sin(clamp(1.0-scene.tools.y/1.15,0.0,1.0)*3.14159265)*0.09,scene.tools.y>0.0);
     let idle_breath=sin(time*1.45)*0.005*scene.feedback.w-placing_bend;
-    // These anchors are measured on each painted upper-body layer. The lamp
-    // pixels, halo and world illumination use the same animated transform.
-    let lamp_pixel=select(vec2(129.0,111.0),select(vec2(143.0,119.0),vec2(87.0,102.0),scene.appearance.y<0.0),vertical);
+    // Measured on the selected complete painted pose, including settling.
+    // Pixels, halo and world illumination share the same animated transform.
+    let lamp_pixel=scene.traveller.xy;
     let lamp_flip=select(scene.motion.y,1.0,vertical);
     let lamp_weight=clamp((0.9-lamp_pixel.y/256.0)/0.6,0.0,1.0);
-    let lantern=scene.player.xy+vec2((lamp_pixel.x/192.0-0.5+idle_sway*lamp_weight)*45.0*lamp_flip,(0.9375-(lamp_pixel.y+body_bob)/256.0+idle_breath*lamp_weight)*60.0-scene.motion.z*0.45);
+    let lantern=scene.player.xy+vec2((lamp_pixel.x/192.0-0.5+idle_sway*lamp_weight)*45.0*lamp_flip,(0.9375-lamp_pixel.y/256.0+idle_breath*lamp_weight)*60.0-scene.motion.z*0.45);
     let flicker=0.95+0.025*sin(time*7.1)+0.017*sin(time*11.73+1.8)+0.018*sin(time*2.37);
     let lantern_tint=vec3(1.19,0.91,0.60);
     let brightness = clamp(scene.player.z, 0.0, 1.0);
@@ -483,22 +482,19 @@ fn fragment(mesh: VertexOutput) -> @location(0) vec4<f32> {
         let art=prop_sample(p,vec4(foot,28.0,7.0));
         color=mix(color,vec3(pow(max(art.r,0.0),0.65)*(light*0.6+0.025)),art.a);
     }
-    // Forty-eight rigid articulated gait poses, aligned to the same boot contact.
+    // Complete painted bodies: shoulders, arms, coat, hips and boots all move.
     let v=p-scene.player.xy;
     let body_fade=1.0-smoothstep(1.0,4.0,ending);
     var body_uv=sprite_uv(p,scene.player.xy-vec2(0.0,scene.motion.z*0.45),vec2(45.0,60.0),select(scene.motion.y,1.0,vertical));
     let upper=clamp((0.9-body_uv.y)/0.6,0.0,1.0);
     body_uv+=vec2(-idle_sway,idle_breath)*upper;
     if within(body_uv) {
-        var art=animate(traveller_texture,traveller_sampler,body_uv,phase,0.0,6.0);
+        var art=textureSampleLevel(traveller_texture,traveller_sampler,atlas_uv(body_uv,scene.traveller.z,8.0,6.0),0.0);
         if vertical {
-            art=animate(vertical_texture,vertical_sampler,body_uv,phase,select(0.0,48.0,scene.appearance.y<0.0),12.0);
+            art=textureSampleLevel(vertical_texture,vertical_sampler,atlas_uv(body_uv,scene.traveller.z,8.0,12.0),0.0);
         }
-        if scene.appearance.z<8.0 && scene.feedback.w>0.15 {
-            let landing=ceil(scene.motion.x/38.0)%2.0;
-            let first=select(landing*24.0,select(48.0,72.0,scene.appearance.y<0.0),vertical);
-            let pose=first+floor(clamp((scene.feedback.w-0.15)/0.85,0.0,1.0)*23.0);
-            art=textureSampleLevel(idle_texture,idle_sampler,atlas_uv(body_uv,pose,8.0,12.0),0.0);
+        if scene.traveller.w>0.5 {
+            art=textureSampleLevel(idle_texture,idle_sampler,atlas_uv(body_uv,scene.traveller.z,12.0,12.0),0.0);
         }
         let body_light=0.012+brightness*0.17+pulse_light*0.20+scene.feedback.x*0.35;
         color=mix(color,vec3(pow(max(art.r,0.0),0.58)*body_light),art.a*body_fade);

@@ -121,7 +121,6 @@ def prepare(name, cycles):
     print(f'{path.name}: {atlas.shape[1]}x{atlas.shape[0]}, {len(cycles)} cycles of 48 poses')
 
 
-prepare('traveller', [list(range(8))])
-prepare('traveller-vertical', [list(range(4)), list(range(4, 8))])
+# Traveller assets have a separate full-body pipeline: animate-traveller.py.
 prepare('hauler', [list(range(8))])
 prepare('ecosystem', [list(range(4)), list(range(4, 8))])

@@ -18,7 +18,18 @@ Movement audio now uses freely licensed CC0 recordings; see [credits](../assets/
 
 Creature animation keyframes are expanded into 48-pose cycles by `scripts/interpolate-animation.py` (NumPy and OpenCV). It estimates bidirectional motion and splats pixels forward to preserve occluding limbs. Intermediate motion data stays in `motion-fields/`; playable atlases are `assets/art/*-motion.png`. The original image-generation prompts are unchanged.
 
-The traveller now uses `scripts/rig-traveller.py`, which bakes rigid painted leg segments under a neutral coat using fixed-length two-bone IK. There is no optical-flow interpolation, shearing or alpha cross-fade on the traveller. Forty-eight walking poses and twenty-four settling poses retain the established footfall cadence.
+The traveller uses `scripts/animate-traveller.py` and the new complete-body source poses in `source/traveller-v2/`. The exact built-in imagegen prompts accompany those sheets. `scripts/setup-animation.sh` installs the pinned offline tooling and downloads the checksum-verified Practical-RIFE v4.26 model. RIFE estimates intermediate full-body poses and occlusion; the script carries alpha through those same warps, removes matte contamination, and restores solid cloth coverage to avoid translucent boots. It bakes 48 walking poses per direction and 24 settling poses for each contact/direction. No model is downloaded or run by players. The old cut-up-leg IK script has been removed.
+
+[Practical-RIFE](https://github.com/hzwer/Practical-RIFE) code and model weights are MIT-licensed by their authors. They are build tools only, downloaded into ignored `.tools/`; their upstream license remains there. The generated PNG atlases, rather than the model or inference code, ship in Last Light. The pinned revision and model checksum are recorded in `scripts/setup-animation.sh`.
+
+Regenerate the traveller with:
+
+```sh
+./scripts/setup-animation.sh
+.tools/animation/bin/python scripts/animate-traveller.py
+```
+
+The bake also measures the actual flame in all 288 poses and writes `src/traveller_lamps.rs`. Regenerate those coordinates with the atlases so illumination remains attached to the physical lantern.
 
 The latest built-in image-generation calls used generation mode (no reference images): `source/objects.png` supplies eight distinct props including the lantern, and `source/pickups.png` supplies the bell and oil flask. Their exact prompt set is in `prompts.json`. `scripts/pack-art.py` packs both into `assets/art/objects.png` as four columns by three rows.
 

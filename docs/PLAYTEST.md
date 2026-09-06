@@ -461,3 +461,32 @@ separate stationary check at the Rest membrane attracted a creature after openin
 it and ended in death, consistent with the lantern's existing attraction mechanic.
 The placement prompt uses the font's supported punctuation. The final release
 and isolated development build were rebuilt; existing saves were not changed.
+
+## Complete-body traveller animation — 2026-09-07
+
+Replaced the rigid leg-piece rig with regenerated complete-body artwork. The
+offline bake uses Practical-RIFE to interpolate the painted poses into 48-frame
+walking cycles and 24-frame transitions from either heel contact to rest. The
+shader draws one finished pose, with no runtime cross-fade between silhouettes.
+
+Inspected the four directional cycles in a browser animation viewer and played
+movement, direction changes, stopping and darkness in the isolated opening.
+Left and right use the same complete poses with a single mirror. Front and back
+use independent painted poses. The new side standing pose keeps the lantern at
+walking height, removing a hand/light jump found during transition inspection.
+
+The initial in-between bake was rejected after close inspection found detached
+boots. The replacement learned interpolation preserves connected legs; alpha
+is carried through its warps and restored to solid cloth coverage. All 288 final
+poses pass padding and flame-registration checks. The flame lies on opaque glass
+in every frame, and the largest adjacent-frame movement is under three pixels.
+Every atlas is at most 3072 pixels on either axis, within WebGL 2 limits.
+
+Browser observations: approximately 16.6–16.8 ms per frame after loading, no
+renderer errors, measured normal/dark speeds of 82/62 world units per second,
+and no deaths during the animation checks. These speeds advance about 52/39
+animation poses per second. Footstep timing still uses actual ground distance;
+the existing footfall and wall-stop regressions remain passing. All 54 native
+tests and strict Clippy pass. The final changed lamp tables also pass the two
+new direction/settling registration regressions. This was an animation-focused
+pass, not another complete campaign playthrough.

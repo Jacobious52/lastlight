@@ -9,6 +9,7 @@ mod render;
 mod roots;
 mod save;
 mod shadow;
+mod traveller_lamps;
 mod ui;
 mod world;
 use bevy::asset::AssetMetaCheck;

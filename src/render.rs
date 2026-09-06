@@ -19,7 +19,89 @@ use crate::{model::*, world::*};
 const MAX_ROOMS: usize = 32;
 const MAX_OBJECTS: usize = 24;
 
+/// Pose selection and lamp registration share a single clock. Distances of
+/// 0 and 38 are the two heel contacts, also used by the recorded footsteps.
+fn traveller_pose(game: &Game) -> Vec4 {
+    use crate::traveller_lamps::{REST_LAMPS, WALK_LAMPS};
+    let view = if game.facing.y.abs() > game.facing.x.abs() * 1.2 {
+        if game.facing.y > 0. { 1 } else { 2 }
+    } else {
+        0
+    };
+    if game.ground_speed < 8. && game.idle > 0.15 {
+        let landing = (game.gait / 38.).ceil() as usize % 2;
+        let cycle = view * 2 + landing;
+        let pose = (((game.idle - 0.15) / 0.85).clamp(0., 1.) * 23.) as usize;
+        let lamp = REST_LAMPS[cycle][pose];
+        Vec4::new(lamp[0], lamp[1], (cycle * 24 + pose) as f32, 1.)
+    } else {
+        let pose = (game.gait / 76. * 48.).floor() as usize % 48;
+        let lamp = WALK_LAMPS[view][pose];
+        Vec4::new(
+            lamp[0],
+            lamp[1],
+            (pose + if view == 2 { 48 } else { 0 }) as f32,
+            0.,
+        )
+    }
+}
+
 pub struct RenderPlugin;
+
+#[cfg(test)]
+mod traveller_tests {
+    use super::*;
+
+    #[test]
+    fn walking_lantern_registration_follows_every_direction_and_contact() {
+        let mut game = Game::new(72419, Vec2::ZERO, 32);
+        game.ground_speed = 82.;
+        game.idle = 0.;
+        for (view, facing) in [Vec2::X, Vec2::Y, Vec2::NEG_Y].into_iter().enumerate() {
+            game.facing = facing;
+            for pose in 0..48 {
+                game.gait = (pose as f32 + 0.25) * 76. / 48.;
+                let sample = traveller_pose(&game);
+                let expected = crate::traveller_lamps::WALK_LAMPS[view][pose];
+                assert_eq!(sample.truncate().truncate(), Vec2::from_array(expected));
+                assert_eq!(sample.z as usize, pose + if view == 2 { 48 } else { 0 });
+                assert_eq!(sample.w, 0.);
+            }
+        }
+        game.facing = Vec2::X;
+        let right = traveller_pose(&game);
+        game.facing = Vec2::NEG_X;
+        game.body_facing = -1.;
+        assert_eq!(
+            traveller_pose(&game),
+            right,
+            "Left uses the identical whole-body pose, mirrored once in the shader"
+        );
+    }
+
+    #[test]
+    fn either_foot_settles_into_the_same_resting_body_and_lamp() {
+        let mut game = Game::new(72419, Vec2::ZERO, 32);
+        game.ground_speed = 0.;
+        game.idle = 1.;
+        for (view, facing) in [Vec2::X, Vec2::Y, Vec2::NEG_Y].into_iter().enumerate() {
+            game.facing = facing;
+            let mut last_lamp = Vec2::ZERO;
+            for landing in 0..2 {
+                game.gait = landing as f32 * 38.;
+                let sample = traveller_pose(&game);
+                assert_eq!(sample.z as usize, (view * 2 + landing) * 24 + 23);
+                assert_eq!(sample.w, 1.);
+                let lamp = sample.truncate().truncate();
+                if landing == 1 {
+                    assert_eq!(lamp, last_lamp);
+                }
+                last_lamp = lamp;
+            }
+        }
+    }
+}
+
 impl Plugin for RenderPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(Material2dPlugin::<CavernMaterial>::default())
@@ -44,6 +126,7 @@ struct CavernUniform {
     tools: Vec4,
     placement: Vec4,
     bell: Vec4,
+    traveller: Vec4,
     finds: [Vec4; 16],
     roots: [Vec4; 108],
     root_widths: [Vec4; 108],
@@ -172,6 +255,7 @@ fn setup(
         tools: Vec4::ZERO,
         placement: Vec4::ZERO,
         bell: Vec4::ZERO,
+        traveller: traveller_pose(&game),
         finds: [Vec4::ZERO; 16],
         roots: [Vec4::ZERO; 108],
         root_widths: [Vec4::ZERO; 108],
@@ -304,6 +388,7 @@ fn update_view(
         );
     }
     scene.appearance = Vec4::new(game.facing.x, game.facing.y, game.ground_speed, 0.);
+    scene.traveller = traveller_pose(&game);
     scene.feedback = Vec4::new(game.hurt_flash, game.brace, game.foot_echo, game.idle);
     scene.journey = Vec4::new(
         game.resonators as f32,
