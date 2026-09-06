@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#030303"><meta name="description" content="Last Light — a procedural exploration horror game built in Rust and Bevy.">
+<title>Last Light</title>
+<style>
+*{box-sizing:border-box}html,body{width:100%;height:100%;margin:0;background:#030303;overflow:hidden;color:#b7b7b7;font-family:monospace}#game{width:100%;height:100%;display:block;outline:none}#loading{position:fixed;inset:0;display:grid;place-content:center;text-align:center;letter-spacing:.35em;line-height:3;font-size:14px;pointer-events:none}#loading[hidden]{display:none}#loading small{font-size:11px;letter-spacing:.1em;color:#686868}.accessible{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+</style>
+</head>
+<body>
+<canvas id="game" tabindex="0" aria-label="Last Light game. Enter to begin. WASD or click to move, Space to pulse, Shift or X for darkness, E to set down a lantern, R to interact, Q to throw the found bell, Tab for memory, Escape to pause."></canvas>
+<div id="loading">LAST LIGHT<small id="load-detail">Loading the world</small></div>
+<output id="game-status" class="accessible" aria-label="Game status"></output>
+<script>
+// AudioContext must be resumed inside the user's gesture, including contexts
+// created by CPAL during startup. No sound starts until the player begins.
+const contexts=new Set();
+for(const name of ['AudioContext','webkitAudioContext']){const Native=window[name];if(Native)window[name]=class extends Native{constructor(...args){super(...args);contexts.add(this);}};}
+function unlock(){for(const c of contexts){document.getElementById('game-status').setAttribute('data-audio',c.state);if(c.state==='suspended')c.resume().then(()=>document.getElementById('game-status').setAttribute('data-audio',c.state));}}
+window.addEventListener('keydown',unlock,true);window.addEventListener('pointerdown',unlock,true);
+// Keep keyboard ownership with the canvas after clicking or dragging to steer.
+document.getElementById('game').addEventListener('pointerdown',()=>document.getElementById('game').focus({preventScroll:true}));
+window.addEventListener('contextmenu',e=>e.preventDefault());
+window.addEventListener('error',e=>{document.getElementById('load-detail').textContent=e.message;});
+</script>
+<script type="module">
+import init from './lastlight.js';
+try { await init(); document.querySelector('canvas').focus(); }
+catch(e) {document.getElementById('loading').hidden=false;document.getElementById('load-detail').textContent='Unable to start. This game requires WebGL 2. '+e.message;console.error(e);}
+</script>
+</body></html>

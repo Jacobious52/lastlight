@@ -1,0 +1,30 @@
+[
+  {
+    "id": "gravel_floor",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/gravel_floor/gravel_floor_diff_1k.jpg",
+    "source": "https://polyhaven.com/a/gravel_floor",
+    "license": "CC0-1.0",
+    "bytes": 1327302
+  },
+  {
+    "id": "forrest_ground_01",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/forrest_ground_01/forrest_ground_01_diff_1k.jpg",
+    "source": "https://polyhaven.com/a/forrest_ground_01",
+    "license": "CC0-1.0",
+    "bytes": 833711
+  },
+  {
+    "id": "embedded_rock_floor",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/embedded_rock_floor/embedded_rock_floor_diff_1k.jpg",
+    "source": "https://polyhaven.com/a/embedded_rock_floor",
+    "license": "CC0-1.0",
+    "bytes": 792404
+  },
+  {
+    "id": "brown_mud_02",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_mud_02/brown_mud_02_diff_1k.jpg",
+    "source": "https://polyhaven.com/a/brown_mud_02",
+    "license": "CC0-1.0",
+    "bytes": 527741
+  }
+]

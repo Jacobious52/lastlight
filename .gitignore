@@ -1,0 +1,12 @@
+/target/
+/dist/
+.lastlight-save.json
+.DS_Store
+.lastlight-save.json.tmp
+/releases/
+/.tools/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example

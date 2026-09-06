@@ -1,0 +1,63 @@
+{
+  "tool": "Built-in image_gen.imagegen",
+  "date": "2026-09-06",
+  "assets": [
+    {
+      "name": "traveller",
+      "source": "art/source/traveller.png",
+      "runtime": "assets/art/traveller.png",
+      "prompt": "Use case: stylized-concept. Asset type: production 2D game character animation sprite sheet, genuine transparent alpha background. Create a complete 8-frame slow, weighted walking cycle for one small anonymous adult traveller in a worn hooded charcoal coat, heavy boots, face entirely in shadow, a tiny dim lantern held close to their sternum. Facing screen right in a slightly elevated three-quarter game view. Monochrome charcoal and graphite illustration with carefully painted cloth folds and subtle grey edge lighting. Restrained physical horror, lonely, serious, no cartoon proportions, no glowing eyes, no outlines or neon. Exactly FOUR equal columns by TWO equal rows, eight separate full-body frames in reading order, regular cells, identical character scale and common foot baseline within every cell, ample transparent margins between figures. Sequence: right heel contact, weight down, passing, lift, left heel contact, weight down, passing, lift. Coat and lantern lag subtly with the stride. Smoothly consistent anatomy and costume across all frames. Entire bodies visible, each approximately 80% of its cell height. No floor, no cast shadow, no scenery, no grid lines, no labels, no text. Landscape 1536 by 1024."
+    },
+    {
+      "name": "hauler",
+      "source": "art/source/hauler.png",
+      "runtime": "assets/art/hauler.png",
+      "prompt": "Use case: stylized-concept. Production game animation sprite sheet, genuine transparent background alpha, NO background color or scene. Exactly 4 equal columns and 2 equal rows, 8 full-body frames, common scale and foot baseline, clear margins. An original unsettling large organism for a monochrome exploration horror game: a heavy, asymmetric mass of weathered hanging hide and petrified cloth supported by two long jointed load-bearing limbs, a blunt eyeless head buried in folds, a few ragged trailing root fibres. It resembles something ancient and physical, not a symbol, not a spider, not an octopus, not a humanoid, not a cute monster. Slowly dragging its weight toward screen right, slightly elevated three-quarter view. Eight distinct contiguous poses make one complete slow gait loop: plant, compress, lean, haul, opposite plant, compress, lean, haul. Keep the same creature anatomy in every frame. Charcoal and graphite hand-painted game art, very dark black body with faint grey folds and tactile surface texture, restrained rim light, no glowing outlines, no bright eyes, no coloured highlights. Full figures, no cropped limbs. No text or labels or grids. Landscape 1536x1024."
+    },
+    {
+      "name": "terrain",
+      "source": "art/source/terrain.png",
+      "runtime": "assets/art/terrain.png",
+      "prompt": "Use case: stylized-concept. Production 2D game environment cutout atlas, genuine transparent alpha background, no opaque backdrop. Exactly FOUR large isolated props in a regular two by two layout with wide empty margins, nothing touching between cells. Slightly elevated three-quarter top-down view suitable for a 2D exploration game. Upper left: a massive fallen twisted dead tree trunk with splintered wood and gnarled exposed roots. Upper right: a collapsed rough masonry arch and weathered stone pier, broken brickwork. Lower left: a tall angular shale outcrop with deep fractures and stone fragments at its foot. Lower right: a long ragged sheet of heavy ruined fabric hanging from broken timber, with a few tangled ropes. Concrete recognisable physical objects, not abstract geometric motifs. Entire objects visible inside their separate cells. All strictly black, charcoal and grey, expressive hand-painted graphite and matte charcoal horror game artwork, realistic tactile detail at small scale, uneven edge erosion. Diffuse faint grey highlights, no local light source, no glowing outlines, no coloured light, no floor/background/ground plane, no text, no labels, no grid lines. 1536x1024."
+    },
+    {
+      "name": "ground",
+      "source": "art/source/ground.png",
+      "runtime": "assets/art/ground.png",
+      "prompt": "Use case: stylized-concept. Production seamless diffuse ground texture for a monochrome 2D horror exploration game. True overhead orthographic view of old compacted earth, fractured flat slate, tiny crushed gravel, dark damp seams, decayed fibres, worn paths with irregular patches. Hand-painted charcoal and graphite with believable tactile detail, muted low-contrast greys. Continuous natural surface across the entire square, no composition focal point, no wall, no horizon, no room outline, no circles or radial arrangements, no identifiable large props. No shadows cast from an external object, no directional lighting, no vignette, no bright highlights, no gradients to edges, no text. Seamlessly tileable edges. 1024x1024."
+    },
+    {
+      "name": "ecosystem",
+      "source": "art/source/ecosystem.png",
+      "runtime": "assets/art/ecosystem.png",
+      "prompt": "Production transparent PNG sprite atlas for a restrained black and white horror game. Exactly four columns by two rows. Row one shows FOUR successive poses of one slow walking organism: a narrow upright broken slab of layered slate, a tall asymmetrical bundle of weathered stone and tightly draped hide, three long crooked rootlike legs underneath bearing its heavy weight. Absolutely no head, face or eyes. Row two shows FOUR successive poses of a DIFFERENT low ground-dwelling organism: a heavy folded raglike mantle dragged over the ground by a single broad rippling muscular underside, a blind blunt front and tattered fibres trailing behind. Neither animal resembles a spider, bat, fish or recognizable animal. Each row is a coherent full four-frame slow gait cycle of its own creature toward screen right, three-quarter elevated perspective. Concrete tactile graphite and charcoal hand-painted artwork. Identical scale, anatomy and baseline within each row, entire body visible in each cell, generous empty transparent gutters, no scenery, no floor, no frame lines or text. Matte black bodies with faint grey detail and subtle edge light, no glow, no colour. True alpha transparency. Landscape 1536 by 1024."
+    },
+    {
+      "name": "traveller-vertical",
+      "source": "art/source/traveller-vertical.png",
+      "runtime": "assets/art/traveller-vertical.png",
+      "prompt": "Production transparent PNG animation sprite sheet for the SAME hooded traveller shown in the reference. Preserve the worn charcoal coat, backpack bedroll, heavy boots and tiny lantern, adult realistic proportions, face entirely shadowed. Need two missing walking directions for a slightly elevated three-quarter 2D game view. STRICT FOUR columns by TWO rows, eight complete separate full-body figures with generous transparent gutters. Top row: four successive poses of a complete slow weighted gait moving AWAY from the viewer, showing the traveller's BACK and backpack. Bottom row: four successive poses moving TOWARD the viewer, showing the FRONT and lantern at chest height. In each row, contact with right foot, passing, contact with left foot, passing. All feet fully present and on a consistent baseline per row. Every figure fits fully inside its own equal cell without touching any cell edge. Keep anatomy, scale and coat design absolutely consistent. Matte charcoal and graphite grey painted artwork matching the reference, no colour, no glowing outlines, no cute proportions. True transparent alpha background; no opaque or checkerboard background, no floor, no scenery, no labels, no grid. 1536x1024 landscape."
+    },
+    {
+      "name": "objects",
+      "source": "art/source/objects.png",
+      "runtime": "assets/art/objects.png",
+      "mode": "generate; no reference images",
+      "prompt": "Create a production sprite atlas for the existing 2D exploration horror game Last Light. Eight DIFFERENT environmental objects in exactly four columns and two rows, each fully isolated with generous transparent space and no touching objects. Real transparent RGBA background; no checkerboard, ground plane, labels, UI, text or framing. All objects share a slightly elevated orthographic side view and grounded baseline, painted grayscale charcoal and weathered material detail, restrained realism. Crisp useful silhouettes, no colored effects or baked glow. Top row left to right: 1 a squat irregular standing stone with a shallow circular hollow, 2 a collapsed horizontal broken masonry column with a few chips, 3 a low heap of overlapping flat slate slabs, 4 a small old iron oil lantern with glass windows and rounded carrying handle, upright and unlit. Bottom row left to right: 5 a rusted winch drum with hanging chain and timber base, 6 a hollow rotten stump with a tangled asymmetrical spreading root base, 7 a collapsed crossed pile of splintered timber beams, 8 a low ancient cracked stone basin. No arches. These must look like eight separate recognizable objects, not different sizes of the same prop. Palette black and grayscale only, modest soft diffuse lighting revealing texture. Preserve transparent holes in lantern handle, branches, chain and winch. Large landscape atlas, all eight completely within their cells."
+    },
+    {
+      "name": "pickups",
+      "source": "art/source/pickups.png",
+      "runtime": "assets/art/objects.png",
+      "mode": "generate; no reference images",
+      "prompt": "Production pickup sprite sheet for a restrained grayscale exploration horror game. EXACTLY TWO separate objects side by side on genuine transparent RGBA background, no background color, no floor, no shadow plane, no text or labels. Left: a small old iron handbell resting upright, modest round handle and curved flared metal skirt, chipped blackened metal with subtle graphite gray highlights, realistic tactile painted detail. Right: a short squat old glass oil flask with a cork stopper and metal neck collar, visibly partially filled with dark oil, opaque enough to remain readable over black, gray diffuse highlights and weathered glass. Both seen in a slightly elevated three-quarter orthographic view, entire objects within their own equal cells, generous transparent margins, common grounded baseline. Charcoal graphite realism matching a serious lonely horror game, no neon, no symbols, no cartoon rendering, no bright white outlines, no decorative plinths. Landscape 1536 by 1024. Readable useful silhouettes at small game sizes."
+    }
+  ],
+  "packing": "scripts/pack-art.py extracts alpha-connected figures and aligns ground contacts; originals are preserved.",
+  "rejected": [
+    {
+      "prompt": "Edit this production game prop atlas by REPACKING its four existing objects. Preserve the exact graphite artwork and each object's design. Make a strict uniform 2 by 2 atlas, 1536x1024, with vertical dividing axis at x=768 and horizontal dividing axis at y=512. Upper left entire fallen tree must fit within x80..688 y60..452. Upper right entire masonry arch must fit x848..1456 y60..452. Lower left entire shale outcrop must fit x80..688 y572..964. Lower right entire hanging cloth and posts must fit x848..1456 y572..964. Scale objects down uniformly as needed. Absolutely every fragment, root tip and stone must stay within its specified rectangle. No shared ground plane, no object cropped by a cell boundary, no stray fragments from another quadrant. Genuine transparent alpha in all gutters and around each object. No labels, no grids, no extra marks, no floor or scenery. This is a technical atlas packing correction; preserve the art and its monochrome look.",
+      "reason": "Opaque checkerboard. Not integrated; original RGBA source extracted instead."
+    }
+  ]
+}
