@@ -1058,7 +1058,7 @@ fn a_bell_can_be_found_thrown_heard_and_retrieved_without_light() {
     let p = crate::exploration::finds(app.world().resource::<WorldMap>())[0].position;
     place_player(&mut app, p);
     tap(&mut app, KeyCode::KeyR);
-    assert!(app.world().resource::<Game>().bell_found);
+    assert!(app.world().resource::<Game>().bell_ready());
     assert_eq!(app.world().resource::<Game>().mode, Mode::Discovery);
     tap(&mut app, KeyCode::Enter);
     let world = app.world().resource::<WorldMap>();
@@ -1074,6 +1074,7 @@ fn a_bell_can_be_found_thrown_heard_and_retrieved_without_light() {
     let entity = organism(&mut app, CreatureKind::Listener, center + dir * 180., 5);
     tap(&mut app, KeyCode::KeyQ);
     let bell = app.world().resource::<Game>().bell_out.unwrap();
+    assert!(!app.world().resource::<Game>().bell_ready());
     assert!(bell.distance(center) > 100.);
     tick(&mut app, 20);
     assert!(
@@ -1089,7 +1090,7 @@ fn a_bell_can_be_found_thrown_heard_and_retrieved_without_light() {
     walk(&mut app, bell);
     tap(&mut app, KeyCode::KeyR);
     assert!(app.world().resource::<Game>().bell_out.is_none());
-    assert!(app.world().resource::<Game>().bell_found);
+    assert!(app.world().resource::<Game>().bell_ready());
 }
 
 #[test]
@@ -1136,4 +1137,72 @@ fn a_listener_takes_time_to_extinguish_a_placed_lantern() {
     assert!(app.world().resource::<Game>().anchor_snuff > 0.8);
     tick(&mut app, 12);
     assert!(app.world().resource::<Game>().anchor.is_none());
+}
+
+#[test]
+fn folded_structure_explains_failed_attempts_even_in_darkness() {
+    use crate::ritual::{FoldedState, state};
+    let world = WorldMap::generate(72419);
+    let center = world.rooms[16].center;
+    let mut game = Game::new(world.seed, center, world.rooms.len());
+    game.has_anchor = true;
+    game.brightness = 0.015;
+    game.message_time = 0.;
+    for (distance, expected, words) in [
+        (80., FoldedState::TooClose, "too close"),
+        (260., FoldedState::TooFar, "too far"),
+        (220., FoldedState::TooFar, "too far"),
+        (95., FoldedState::Ready, "Hold R"),
+        (155., FoldedState::Ready, "Hold R"),
+    ] {
+        game.anchor = Some(center + Vec2::Y * distance);
+        assert_eq!(state(&game, center), expected);
+        assert!(crate::guidance::playing_hint(&game, &world).contains(words));
+    }
+    game.pulse = 0.01;
+    assert_eq!(state(&game, center), FoldedState::PulseFading);
+    assert!(crate::guidance::playing_hint(&game, &world).contains("pulse to fade"));
+    assert_eq!(crate::ritual::visual(&game, &world).w, 0.);
+    game.pulse = 0.;
+    assert_eq!(crate::ritual::visual(&game, &world).w, 1.);
+    game.anchor = None;
+    assert_eq!(state(&game, center), FoldedState::NeedsLantern);
+}
+
+#[test]
+fn suggested_lantern_marks_have_clear_approaches_across_worlds() {
+    for seed in (0..96).chain([72419, 518168]) {
+        let world = WorldMap::generate(seed);
+        let center = world.rooms[16].center;
+        let mark = crate::ritual::lantern_mark(&world, center).expect("Missing lantern mark");
+        assert!(line_clear(&world, center, mark), "seed {seed}");
+        assert!(world.field(mark) > 45., "seed {seed}");
+        for direction in [Vec2::X, Vec2::Y, Vec2::NEG_X, Vec2::NEG_Y] {
+            let distance = (mark + direction * 18.).distance(center);
+            assert!((95.0..220.0).contains(&distance), "seed {seed}");
+        }
+    }
+}
+
+#[test]
+fn lantern_readiness_tracks_placement_cancellation_and_cooldown() {
+    let mut app = simulation(72419);
+    assert!(!app.world().resource::<Game>().lantern_ready());
+    app.world_mut().resource_mut::<Game>().has_anchor = true;
+    assert!(app.world().resource::<Game>().lantern_ready());
+    tap(&mut app, KeyCode::KeyE);
+    assert!(!app.world().resource::<Game>().lantern_ready());
+    key(&mut app, KeyCode::KeyD, true);
+    tick(&mut app, 4);
+    key(&mut app, KeyCode::KeyD, false);
+    assert_eq!(app.world().resource::<Game>().anchor_placing, 0.);
+    assert!(!app.world().resource::<Game>().lantern_ready());
+    tick(&mut app, 50);
+    assert!(app.world().resource::<Game>().lantern_ready());
+    tap(&mut app, KeyCode::KeyE);
+    tick(&mut app, 25);
+    assert!(app.world().resource::<Game>().anchor.is_some());
+    assert!(!app.world().resource::<Game>().lantern_ready());
+    tick(&mut app, 26);
+    assert!(app.world().resource::<Game>().lantern_ready());
 }

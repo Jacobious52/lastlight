@@ -51,7 +51,11 @@ A fixed world can be selected using `?seed=12345` in the browser or `cargo run -
 
 No health, ammunition, or upgrade-selection HUD. The body's light shows pulse readiness, proximity to danger unsettles it, and charging structures draw a ring around it. Mechanics are introduced by temporary contextual hints and brief ability-acquisition pauses. First contact flashes the traveller and screen edge; a failing lantern pulses and rattles.
 
+Small bottom-right indicators show lantern placement/cooldown and bell availability. A thrown bell must be collected; it does not recharge.
+
 Nearby membranes keep their instructions visible until resolved or left behind, even if you used a pulse earlier. Circular membranes respond to Space; thorned membranes need darkness; ribbed membranes with a lantern symbol need a placed lantern's steady light, which a brief pulse cannot supply. The opening also guides movement, the bell and the first creature before releasing you into the Hollow.
+
+The folded structure at Sealed Lung needs a placed lantern beside it while you remain dark at its centre. A floor mark suggests a suitable placement, persistent guidance identifies the unmet condition, and the structure shows readiness and held-R progress.
 
 ## Journey
 

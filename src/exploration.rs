@@ -58,11 +58,7 @@ pub fn update(
     }
     let dt = time.delta_secs().min(0.05);
     let interact = keys.just_pressed(KeyCode::KeyR);
-    if keys.just_pressed(KeyCode::KeyQ)
-        && game.bell_found
-        && game.bell_out.is_none()
-        && game.anchor_placing <= 0.
-    {
+    if keys.just_pressed(KeyCode::KeyQ) && game.bell_ready() {
         let mut landing = game.player;
         for i in 1..=24 {
             let next = game.player + game.facing.normalize_or_zero() * i as f32 * 7.;

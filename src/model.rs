@@ -141,6 +141,12 @@ impl Game {
             new_confirm: false,
         }
     }
+    pub fn lantern_ready(&self) -> bool {
+        self.has_anchor && self.anchor_charge <= 0. && self.anchor_placing <= 0.
+    }
+    pub fn bell_ready(&self) -> bool {
+        self.bell_found && self.bell_out.is_none() && self.anchor_placing <= 0.
+    }
     pub fn say(&mut self, text: impl Into<String>, duration: f32) {
         self.message = text.into();
         self.message_time = duration;

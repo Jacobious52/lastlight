@@ -14,6 +14,7 @@ pub fn apply(game: &mut Game, world: &mut WorldMap) {
     let Some(selection) = selection else {
         return;
     };
+    let ritual = selection == "ritual";
     let survey = selection == "survey";
     let ending = selection == "ending";
     let opening = selection == "opening";
@@ -22,7 +23,9 @@ pub fn apply(game: &mut Game, world: &mut WorldMap) {
     let gate_preview = selection
         .strip_prefix("gate-")
         .and_then(|n| n.parse::<usize>().ok());
-    let room = if anchor_lesson {
+    let room = if ritual {
+        16
+    } else if anchor_lesson {
         6
     } else if veil_lesson {
         10
@@ -36,6 +39,7 @@ pub fn apply(game: &mut Game, world: &mut WorldMap) {
     };
     *game = Game::new(world.seed, world.rooms[room].center, world.rooms.len());
     game.test_mode = true;
+    game.bell_found = ritual;
     if survey {
         game.visited.fill(true);
         game.map_open = true;

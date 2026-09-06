@@ -5,6 +5,9 @@ pub fn playing_hint(game: &Game, world: &WorldMap) -> String {
     if game.anchor_placing > 0. {
         return "Placing lantern; stay still".into();
     }
+    if let Some(hint) = crate::ritual::hint(game, world) {
+        return hint.into();
+    }
     if let Some(hint) = gate_hint(game, world) {
         return hint;
     }

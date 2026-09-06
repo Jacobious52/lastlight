@@ -127,6 +127,7 @@ struct CavernUniform {
     placement: Vec4,
     bell: Vec4,
     traveller: Vec4,
+    ritual: Vec4,
     finds: [Vec4; 16],
     roots: [Vec4; 108],
     root_widths: [Vec4; 108],
@@ -256,6 +257,7 @@ fn setup(
         placement: Vec4::ZERO,
         bell: Vec4::ZERO,
         traveller: traveller_pose(&game),
+        ritual: Vec4::ZERO,
         finds: [Vec4::ZERO; 16],
         roots: [Vec4::ZERO; 108],
         root_widths: [Vec4::ZERO; 108],
@@ -389,6 +391,7 @@ fn update_view(
     }
     scene.appearance = Vec4::new(game.facing.x, game.facing.y, game.ground_speed, 0.);
     scene.traveller = traveller_pose(&game);
+    scene.ritual = crate::ritual::visual(&game, &map);
     scene.feedback = Vec4::new(game.hurt_flash, game.brace, game.foot_echo, game.idle);
     scene.journey = Vec4::new(
         game.resonators as f32,

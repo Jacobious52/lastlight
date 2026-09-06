@@ -495,3 +495,26 @@ The publication check also led to content-versioned browser loading. A fresh
 release-loader check restored the existing localhost save at Hollow, kept it on
 the title screen, loaded the stamped build at 16.6 ms/frame, and reported no
 renderer errors. The player's saved journey was preserved.
+
+## Folded structure guidance and tool readiness — 2026-09-07
+
+The Sealed Lung structure previously required a placed lantern 95–220 world
+units from its centre without explaining that distance band. Extinguishing and
+holding R could silently fail. Gameplay and readiness rendering now share the
+same requirement evaluation, including the final trace of a pulse. Persistent
+hints distinguish absent, too-close and too-distant lanterns, personal light,
+a fading pulse, and needing to approach. A suggested lantern engraving has a
+clear path and sufficient placement clearance across 98 checked seeds.
+
+Browser-tested an incorrect close placement, followed the engraving, replaced
+the lantern, returned in darkness and reached the ready/hold-R state. Checked
+placement/cooldown/readiness labels, throwing the bell, and collecting it to
+restore readiness. Browser frame times
+remained around 16.6–16.8 ms with no renderer errors. The held-R completion is
+covered by the real ECS input regression; browser tooling sends key taps rather
+than sustained holds. This was a focused interaction pass, not a full campaign.
+
+Lantern and bell cues share the input eligibility checks. Lantern availability
+returns after the placement cooldown; a thrown bell needs retrieval. Additional
+regressions cover cancelled placement readiness, darkness hints at distance
+boundaries, pulse readiness, and bell throw/retrieve availability.

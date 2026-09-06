@@ -9,6 +9,8 @@ enum UiPart {
     Hint,
     Place,
     Footer,
+    Lantern,
+    Bell,
 }
 impl Plugin for InterfacePlugin {
     fn build(&self, app: &mut App) {
@@ -69,6 +71,26 @@ fn setup(mut commands: Commands) {
                 ..default()
             },
         ),
+        (
+            UiPart::Lantern,
+            14.,
+            Color::srgb(0.68, 0.61, 0.47),
+            Node {
+                bottom: px(43.),
+                right: px(32.),
+                ..default()
+            },
+        ),
+        (
+            UiPart::Bell,
+            14.,
+            Color::srgb(0.68, 0.61, 0.47),
+            Node {
+                bottom: px(22.),
+                right: px(32.),
+                ..default()
+            },
+        ),
     ] {
         let justify = if matches!(part, UiPart::Hint) {
             Justify::Center
@@ -96,13 +118,45 @@ fn update(
     world: Res<WorldMap>,
     time: Res<Time>,
     _roots: Res<crate::roots::Rootwork>,
-    mut texts: Query<(&UiPart, &mut Text)>,
+    mut texts: Query<(&UiPart, &mut Text, &mut TextColor)>,
     mut status_clock: Local<f32>,
     mut frame_average: Local<f32>,
 ) {
     let playing_hint = crate::guidance::playing_hint(&game, &world);
-    for (part, mut text) in &mut texts {
+    for (part, mut text, mut color) in &mut texts {
+        if matches!(part, UiPart::Lantern | UiPart::Bell) {
+            let ready = if matches!(part, UiPart::Lantern) {
+                game.lantern_ready()
+            } else {
+                game.bell_ready()
+            };
+            let target = if ready {
+                Color::srgb(0.72, 0.66, 0.53)
+            } else {
+                Color::srgb(0.43, 0.43, 0.43)
+            };
+            if color.0 != target {
+                color.0 = target;
+            }
+        }
         let content = match part {
+            UiPart::Lantern | UiPart::Bell if game.mode != Mode::Playing || game.map_open => {
+                String::new()
+            }
+            UiPart::Lantern if !game.has_anchor => String::new(),
+            UiPart::Lantern if game.anchor_placing > 0. => "E  Setting down...".into(),
+            UiPart::Lantern if game.lantern_ready() => "E  Lantern ready".into(),
+            UiPart::Lantern => format!("E  Lantern in {:.0}s", game.anchor_charge.ceil()),
+            UiPart::Bell if !game.bell_found => String::new(),
+            UiPart::Bell if game.bell_out.is_some() && game.bell_age <= 0.8 => {
+                "Bell in flight".into()
+            }
+            UiPart::Bell if game.bell_out.is_some_and(|p| p.distance(game.player) < 48.) => {
+                "R  Retrieve bell".into()
+            }
+            UiPart::Bell if game.bell_out.is_some() => "Bell on ground; collect it".into(),
+            UiPart::Bell if game.bell_ready() => "Q  Bell ready".into(),
+            UiPart::Bell => "Q  Finish placing lantern".into(),
             UiPart::Title => {
                 if game.mode == Mode::Title || (game.mode == Mode::Ending && game.ending_time > 9.)
                 {
@@ -239,6 +293,9 @@ fn update(
                 },
             );
             for (name, value) in [
+                ("lantern-ready", game.lantern_ready().to_string()),
+                ("bell-ready", game.bell_ready().to_string()),
+                ("progress", format!("{:.2}", game.progress)),
                 ("anchor-life", format!("{:.1}", game.anchor_life)),
                 ("placing", format!("{:.2}", game.anchor_placing)),
                 ("snuff", format!("{:.2}", game.anchor_snuff)),

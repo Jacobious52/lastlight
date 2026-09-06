@@ -6,6 +6,7 @@ mod model;
 #[cfg(feature = "playtest")]
 mod playtest;
 mod render;
+mod ritual;
 mod roots;
 mod save;
 mod shadow;

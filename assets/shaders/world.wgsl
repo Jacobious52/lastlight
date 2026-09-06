@@ -16,6 +16,7 @@ struct Scene {
     placement: vec4<f32>,
     bell: vec4<f32>,
     traveller: vec4<f32>,
+    ritual: vec4<f32>,
     finds: array<vec4<f32>, 16>,
     roots: array<vec4<f32>, 108>,
     root_widths: array<vec4<f32>, 108>,
@@ -392,9 +393,20 @@ fn fragment(mesh: VertexOutput) -> @location(0) vec4<f32> {
             glow = (1.0 - s.w) * 0.48;
             form+=gate_mark(v,select(2.0,3.0,s.z>1.5))*0.7*(1.0-s.w);
         } else if s.z < 3.5 {
-            let ad = distance(scene.anchor.xy, s.xy);
-            let indirect = scene.anchor.z * smoothstep(85.0, 95.0, ad) * (1.0 - smoothstep(210.0, 220.0, ad)) * (1.0 - smoothstep(0.07, 0.12, brightness));
-            let opening = max(s.w, select(0.0, indirect, s.z > 3.1));
+            let opening = max(s.w, select(0.0, scene.ritual.w, s.z > 3.1));
+            if s.z > 3.1 && s.w < 0.5 && scene.ritual.z > 0.5 {
+                // A quiet floor engraving suggests a valid placement. It stays
+                // readable after extinguishing, without illuminating the room.
+                let mark = p - scene.ritual.xy;
+                let ad = distance(scene.anchor.xy, s.xy);
+                let placed = scene.anchor.z * step(95.0, ad) * (1.0 - step(220.0, ad));
+                let engraving = gate_mark(mark, 2.0) + line(length(mark)-14.0, 0.5)*0.45;
+                color += lantern_tint * engraving * mix(0.12, 0.045, placed);
+                let arc = (a + 3.141593) / 6.283186;
+                let progress = scene.controls.y * step(distance(scene.player.xy, s.xy), 85.0);
+                color += lantern_tint * line(ds-53.0, 0.7)
+                    * (0.004 + opening*0.018 + step(arc,progress)*step(0.001,progress)*0.18);
+            }
             var body = 0.0;
             for (var k = 0; k < 7; k += 1) {
                 let fk = f32(k) - 3.0;

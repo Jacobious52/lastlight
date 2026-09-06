@@ -161,7 +161,7 @@ fn controls(
         game.pulses += 1;
         cues.0.push(Cue::Pulse);
     }
-    if keys.just_pressed(KeyCode::KeyE) && game.has_anchor && game.anchor_charge <= 0. {
+    if keys.just_pressed(KeyCode::KeyE) && game.lantern_ready() {
         game.anchor_placing = 1.15;
         let beside = game.player + game.facing.normalize_or_zero() * 18.;
         game.anchor_origin = if can_move(&world, beside, game.has_veil, game.brightness < 0.1) {
@@ -758,12 +758,7 @@ fn progression(
             SiteKind::Resonator => {
                 charging = true;
                 let nourished = if site.room == 16 {
-                    game.brightness < 0.1
-                        && game.pulse <= 0.
-                        && game.anchor.is_some_and(|a| {
-                            let separation = a.distance(site.position);
-                            (95.0..220.0).contains(&separation)
-                        })
+                    crate::ritual::state(&game, site.position) == crate::ritual::FoldedState::Ready
                 } else {
                     game.brightness > 0.35 || game.pulse > 0.2
                 };
