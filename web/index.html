@@ -13,6 +13,20 @@
 <div id="loading">LAST LIGHT<small id="load-detail">Loading the world</small></div>
 <output id="game-status" class="accessible" aria-label="Game status"></output>
 <script>
+// One content revision for code, shaders, artwork and audio. Returning players
+// may otherwise receive an old cached atlas with a newer shader layout.
+const build='__LASTLIGHT_BUILD__';
+document.getElementById('game-status').setAttribute('data-build',build);
+const fetchResource=window.fetch.bind(window);
+window.fetch=(resource,options)=>{
+  const url=new URL(resource instanceof Request?resource.url:resource,location.href);
+  const assetRoot=new URL('./assets/',location.href);
+  if(url.origin===assetRoot.origin&&url.pathname.startsWith(assetRoot.pathname)){
+    url.searchParams.set('build',build);
+    resource=resource instanceof Request?new Request(url,resource):url;
+  }
+  return fetchResource(resource,options);
+};
 // AudioContext must be resumed inside the user's gesture, including contexts
 // created by CPAL during startup. No sound starts until the player begins.
 const contexts=new Set();
@@ -25,8 +39,8 @@ window.addEventListener('contextmenu',e=>e.preventDefault());
 window.addEventListener('error',e=>{document.getElementById('load-detail').textContent=e.message;});
 </script>
 <script type="module">
-import init from './lastlight.js';
-try { await init(); document.querySelector('canvas').focus(); }
+import init from './lastlight.js?build=__LASTLIGHT_BUILD__';
+try { await init({module_or_path:new URL('./lastlight_bg.wasm?build=__LASTLIGHT_BUILD__',import.meta.url)}); document.querySelector('canvas').focus(); }
 catch(e) {document.getElementById('loading').hidden=false;document.getElementById('load-detail').textContent='Unable to start. This game requires WebGL 2. '+e.message;console.error(e);}
 </script>
 </body></html>

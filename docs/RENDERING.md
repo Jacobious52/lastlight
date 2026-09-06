@@ -14,6 +14,11 @@ The ordinary personal light has a radius parameter of about 77 world units and a
 
 Keep the smooth final fade into deep rock. A deep-rock early fragment return previously exposed clipped Bevy menu text in browser testing. Shader edits need a reload and asset copy; uniform or texture binding changes also need a Rust rebuild.
 
+Both browser build scripts stamp a content revision over the JavaScript, WASM,
+HTML and runtime assets. The loader applies it to module/WASM URLs and same-origin
+asset fetches, so cached artwork cannot be mixed with a new atlas layout. The
+revision is available as `data-build` on the accessible game-status output.
+
 Walking atlases use eight columns, six rows per cycle. The six settling sequences share a twelve-column atlas. All stay within 3072 pixels on either axis. Runtime rendering needs one artwork sample per animated silhouette; motion estimation runs offline, never in the browser.
 
 

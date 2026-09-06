@@ -490,3 +490,8 @@ the existing footfall and wall-stop regressions remain passing. All 54 native
 tests and strict Clippy pass. The final changed lamp tables also pass the two
 new direction/settling registration regressions. This was an animation-focused
 pass, not another complete campaign playthrough.
+
+The publication check also led to content-versioned browser loading. A fresh
+release-loader check restored the existing localhost save at Hollow, kept it on
+the title screen, loaded the stamped build at 16.6 ms/frame, and reported no
+renderer errors. The player's saved journey was preserved.

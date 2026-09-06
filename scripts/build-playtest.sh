@@ -7,3 +7,4 @@ wasm-bindgen --target web --out-dir dist/playtest --out-name lastlight target/wa
 cp web/index.html dist/playtest/index.html
 rm -rf dist/playtest/assets
 cp -R assets dist/playtest/
+python3 scripts/stamp-web.py dist/playtest

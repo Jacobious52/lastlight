@@ -15,3 +15,4 @@ cp web/index.html dist/index.html
 touch dist/.nojekyll
 rm -rf dist/assets
 cp -R assets dist/
+python3 scripts/stamp-web.py dist
