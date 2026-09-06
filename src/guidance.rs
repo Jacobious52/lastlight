@@ -3,7 +3,7 @@ use crate::{model::*, world::*};
 
 pub fn playing_hint(game: &Game, world: &WorldMap) -> String {
     if game.anchor_placing > 0. {
-        return "Placing lantern — stay still".into();
+        return "Placing lantern; stay still".into();
     }
     if let Some(hint) = gate_hint(game, world) {
         return hint;
@@ -88,10 +88,13 @@ fn opening_hint(game: &Game, world: &WorldMap) -> Option<&'static str> {
         1 if !game.bell_found => {
             Some("Look for a small bell in the light. Move close and press R to take it.")
         }
+        1 if game.bell_out.is_some() => {
+            Some("The bell is on the ground. Move close and press R to retrieve it.")
+        }
         1 => Some(
             "Q    throw the bell ahead to draw attention away from you\nR    retrieve it when nearby",
         ),
-        2 if game.dark_time > 1. => {
+        2 if game.dark_time > 1. && game.pulse < 0.15 => {
             Some("Stay dark while it searches. Move past when its path is clear.")
         }
         2 => Some(

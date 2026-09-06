@@ -287,11 +287,17 @@ fn opening_guidance_changes_with_actions_and_stops_after_the_hollow() {
     game.player = world.rooms[1].center;
     game.room = 1;
     assert!(crate::guidance::playing_hint(&game, &world).contains("bell"));
+    game.bell_found = true;
+    assert!(crate::guidance::playing_hint(&game, &world).contains("Q "));
+    game.bell_out = Some(game.player + Vec2::X * 160.);
+    assert!(crate::guidance::playing_hint(&game, &world).contains("on the ground"));
     game.player = world.rooms[2].center;
     game.room = 2;
     assert!(crate::guidance::playing_hint(&game, &world).contains("Light draws"));
     game.dark_time = 2.;
     assert!(crate::guidance::playing_hint(&game, &world).contains("Stay dark"));
+    game.pulse = 1.;
+    assert!(crate::guidance::playing_hint(&game, &world).contains("Light draws"));
     game.hint_stage = 4;
     assert!(crate::guidance::playing_hint(&game, &world).is_empty());
 }

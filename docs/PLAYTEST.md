@@ -447,3 +447,17 @@ guidance ending at the Hollow. Browser testing reproduced the early pulse before
 approaching the first membrane, verified the persistent Space hint at the closed
 door, and opened it to receive the follow-through instruction. Development starts
 disable saving, so this pass does not replace an existing playthrough.
+
+The continuous browser opening continued through bell acquisition, throwing and
+retrieval, the thorned membrane, the Witness encounter, and arrival at the Hollow
+with zero deaths. Its memory view retained the objective and acquired controls.
+Follow-up corrections make the bell prompt reflect whether it is carried or on
+the ground, and avoid claiming the player is hidden while a pulse is still active.
+
+At the ribbed membrane from the Hollow, E showed the placement instruction, then
+“Leave the lantern burning and cross the opening.” Crossing reached Curtain and
+cleared the prompt; the shortcut remained open after the lantern expired. A
+separate stationary check at the Rest membrane attracted a creature after opening
+it and ended in death, consistent with the lantern's existing attraction mechanic.
+The placement prompt uses the font's supported punctuation. The final release
+and isolated development build were rebuilt; existing saves were not changed.
