@@ -171,6 +171,132 @@ fn darkness_alone_cannot_bypass_the_first_light_lesson() {
 }
 
 #[test]
+fn an_early_pulse_does_not_dismiss_the_first_door_instruction() {
+    let mut app = simulation(72419);
+    pulse(&mut app); // Experiment before the first membrane is in reach.
+    tick(&mut app, 90); // Let that distant pulse fade before approaching.
+    let gate = app.world().resource::<WorldMap>().gates[0].clone();
+    place_player(&mut app, gate.position - gate.normal * 95.);
+    app.world_mut().resource_mut::<Game>().moved = 160.;
+    tick(&mut app, 240); // Wait much longer than the old hint timeout.
+    let hint = crate::guidance::playing_hint(
+        app.world().resource::<Game>(),
+        app.world().resource::<WorldMap>(),
+    );
+    assert!(hint.contains("Space") && hint.contains("circular membrane"));
+    assert!(!app.world().resource::<WorldMap>().gates[0].latched);
+    pulse(&mut app);
+    assert!(app.world().resource::<WorldMap>().gates[0].latched);
+    assert!(
+        !crate::guidance::playing_hint(
+            app.world().resource::<Game>(),
+            app.world().resource::<WorldMap>(),
+        )
+        .contains("pulse near")
+    );
+}
+
+#[test]
+fn completing_an_opening_lesson_does_not_erase_other_messages() {
+    let mut app = simulation(72419);
+    {
+        let mut game = app.world_mut().resource_mut::<Game>();
+        game.hint_stage = 1;
+        game.moved = 150.;
+        game.say("Oil flask taken", 4.);
+    }
+    tick(&mut app, 20);
+    assert!(app.world().resource::<Game>().message_time > 2.9);
+    {
+        let mut game = app.world_mut().resource_mut::<Game>();
+        game.hint_stage = 3;
+        game.dark_time = 3.;
+        game.brightness = 0.015;
+        game.say("A structure marked in memory", 4.);
+    }
+    key(&mut app, KeyCode::ShiftLeft, true);
+    tick(&mut app, 20);
+    assert!(app.world().resource::<Game>().message_time > 2.9);
+}
+
+#[test]
+fn lantern_membrane_guidance_tracks_missing_ability_placement_and_crossing() {
+    let mut app = simulation(72419);
+    let index = app
+        .world()
+        .resource::<WorldMap>()
+        .gates
+        .iter()
+        .position(|g| g.kind == GateKind::Anchor)
+        .unwrap();
+    let gate = app.world().resource::<WorldMap>().gates[index].clone();
+    place_player(&mut app, gate.position - gate.normal * 95.);
+    app.world_mut().resource_mut::<Game>().hint_stage = 4;
+    pulse(&mut app);
+    tick(&mut app, 40);
+    let hint = crate::guidance::playing_hint(
+        app.world().resource::<Game>(),
+        app.world().resource::<WorldMap>(),
+    );
+    assert!(hint.contains("placed lantern") && hint.contains("pulse is too brief"));
+    assert!(hint.contains("Find the lantern placement ability"));
+    assert!(app.world().resource::<WorldMap>().gates[index].open < 0.01);
+    app.world_mut().resource_mut::<Game>().has_anchor = true;
+    let hint = crate::guidance::playing_hint(
+        app.world().resource::<Game>(),
+        app.world().resource::<WorldMap>(),
+    );
+    assert!(hint.starts_with("E ") && hint.contains("steady light"));
+    tap(&mut app, KeyCode::KeyE);
+    assert!(
+        crate::guidance::playing_hint(
+            app.world().resource::<Game>(),
+            app.world().resource::<WorldMap>()
+        )
+        .contains("stay still")
+    );
+    tick(&mut app, 50);
+    assert!(app.world().resource::<WorldMap>().gates[index].open > 0.82);
+    assert!(
+        crate::guidance::playing_hint(
+            app.world().resource::<Game>(),
+            app.world().resource::<WorldMap>()
+        )
+        .contains("cross")
+    );
+    walk(&mut app, gate.position + gate.normal * 85.);
+    assert!(app.world().resource::<WorldMap>().gates[index].latched);
+    assert!(
+        !crate::guidance::playing_hint(
+            app.world().resource::<Game>(),
+            app.world().resource::<WorldMap>()
+        )
+        .contains("ribbed membrane")
+    );
+}
+
+#[test]
+fn opening_guidance_changes_with_actions_and_stops_after_the_hollow() {
+    let world = WorldMap::generate(72419);
+    let mut game = Game::new(world.seed, world.spawn, world.rooms.len());
+    assert!(crate::guidance::playing_hint(&game, &world).contains("move"));
+    game.moved = 100.;
+    assert!(crate::guidance::playing_hint(&game, &world).contains("Space"));
+    game.pulses = 1;
+    assert!(crate::guidance::playing_hint(&game, &world).contains("another pulse"));
+    game.player = world.rooms[1].center;
+    game.room = 1;
+    assert!(crate::guidance::playing_hint(&game, &world).contains("bell"));
+    game.player = world.rooms[2].center;
+    game.room = 2;
+    assert!(crate::guidance::playing_hint(&game, &world).contains("Light draws"));
+    game.dark_time = 2.;
+    assert!(crate::guidance::playing_hint(&game, &world).contains("Stay dark"));
+    game.hint_stage = 4;
+    assert!(crate::guidance::playing_hint(&game, &world).is_empty());
+}
+
+#[test]
 fn anchor_requires_proximity_then_latches_after_a_real_crossing() {
     let mut app = simulation(20260906);
     let index = app

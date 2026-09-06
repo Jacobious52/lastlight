@@ -425,3 +425,25 @@ Final release check: 1280×720 viewport, 16.6 ms average frame time after closin
 the development tab. The existing instrumental score was playing at 133.1 seconds,
 gain 0.82, with browser audio running. The save remains paused at its restored
 checkpoint; the final error log is empty. Package: 56 files, 35.63 MiB.
+
+## Opening guidance regression pass — 2026-09-07
+
+Door instructions now follow the closest reachable membrane instead of sharing
+the timed-message/tutorial-stage mechanism. An early experimental pulse no longer
+suppresses the first door's Space prompt. Completing movement or darkness lessons
+no longer erases unrelated pickup messages. The first three rooms provide
+action-dependent movement, pulse, bell and creature guidance until the Hollow.
+
+Ribbed membranes explicitly require a placed lantern, explain why a pulse is too
+brief, and identify the missing placement ability before acquisition. Their glyph
+now depicts a lantern. Guidance changes during placement and while crossing;
+latched shortcuts stop showing the instruction. Ability acquisition repeats this
+distinction without changing the membrane's progression rule.
+
+All 52 native tests and strict Clippy pass. New regressions exercise pulsing before
+the first door, waiting past the old hint timeout, unrelated messages surviving
+tutorial completion, the full lantern-gate placement/crossing sequence, and opening
+guidance ending at the Hollow. Browser testing reproduced the early pulse before
+approaching the first membrane, verified the persistent Space hint at the closed
+door, and opened it to receive the follow-through instruction. Development starts
+disable saving, so this pass does not replace an existing playthrough.

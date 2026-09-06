@@ -142,7 +142,14 @@ fn palette(region: f32) -> vec3<f32> {
 fn gate_mark(q: vec2<f32>, kind: f32) -> f32 {
     if kind<0.5 { return line(length(q)-7.0,0.8)+line(q.x,0.6)*(1.0-smoothstep(8.0,11.0,abs(q.y)))+line(q.y,0.6)*(1.0-smoothstep(8.0,11.0,abs(q.x))); }
     if kind<1.5 { return line(abs(q.x)-abs(q.y)*0.55-2.0,0.8)*(1.0-smoothstep(7.0,10.0,abs(q.y))); }
-    if kind<2.5 { return line(length(q-vec2(0.0,3.0))-7.0,1.1)*step(q.y,5.0)+line(q.x,0.9)*step(abs(q.y+4.0),6.0); }
+    if kind<2.5 {
+        // A lantern silhouette matches the object that holds these ribs apart.
+        let frame=line(abs(q.x)-4.5,0.7)*step(abs(q.y-1.0),5.5);
+        let caps=line(abs(q.y-1.0)-5.5,0.8)*step(abs(q.x),5.2);
+        let hanger=line(length(q-vec2(0.0,-5.0))-3.0,0.7)*step(q.y,-5.0);
+        let flame=solid(ellipse(q-vec2(0.0,1.0),vec2(1.2,2.6)));
+        return frame+caps+hanger+flame;
+    }
     if kind<3.5 { return line(abs(q.x+sin(q.y*0.3))-5.0,0.7)*step(abs(q.y),10.0)+line(q.x-sin(q.y*0.3),0.7)*step(abs(q.y),10.0); }
     return line(length(q-vec2(-8.0,0.0))-2.5,0.6)+line(length(q)-2.5,0.6)+line(length(q-vec2(8.0,0.0))-2.5,0.6);
 }

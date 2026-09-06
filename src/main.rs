@@ -1,6 +1,7 @@
 mod audio;
 mod exploration;
 mod gameplay;
+mod guidance;
 mod model;
 #[cfg(feature = "playtest")]
 mod playtest;

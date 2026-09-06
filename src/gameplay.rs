@@ -199,32 +199,6 @@ fn controls(
         let target = game.camera + Vec2::new(relative.x, -relative.y);
         game.target = Some(target);
     }
-    // Hints appear at the relevant obstruction, and disappear after the action.
-    let nearest = world
-        .gates
-        .iter()
-        .find(|g| g.open < 0.8 && g.position.distance(game.player) < 190.);
-    if game.message_time <= 0.
-        && let Some(gate) = nearest
-    {
-        match gate.kind {
-            GateKind::Light if game.pulses == 0 => game.say("Space    release a pulse", 4.),
-            GateKind::Shade if game.brightness > 0.1 => game.say("Hold Shift    extinguish", 4.),
-            GateKind::Anchor if game.has_anchor => {
-                game.say("E    set down a lantern. Stay still while placing it.", 4.)
-            }
-            GateKind::Anchor => game.say("This membrane needs light to remain open", 3.),
-            GateKind::Veil if game.has_veil => {
-                game.say("Hold Shift    pass through the thin membrane", 4.)
-            }
-            GateKind::Veil => game.say("Too dense to pass through", 3.),
-            GateKind::Final => {
-                let left = 3 - game.resonators;
-                game.say(format!("{left} unlit structures remain"), 3.);
-            }
-            _ => {}
-        }
-    }
 }
 
 pub fn can_move(world: &WorldMap, p: Vec2, veil: bool, dark: bool) -> bool {
@@ -760,7 +734,7 @@ fn progression(
                 game.checkpoint = site.position;
                 game.invulnerable = 5.;
                 game.say(
-                    "Lantern placement acquired\nE    set down a lantern. Stay still for a moment.\nIt burns for 28 seconds. Placing another extinguishes it.\nOil extends the next placement to one minute.\n\nEnter    continue",
+                    "Lantern placement acquired\nE    set down a lantern. Stay still for a moment.\nIts steady light holds ribbed membranes open; pulses cannot.\nIt burns for 28 seconds. A new placement extinguishes the old one.\nOil extends the next placement to one minute.\n\nEnter    continue",
                     8.,
                 );
                 cues.0.push(Cue::Ability);
@@ -910,16 +884,14 @@ fn housekeeping(
     } else {
         game.dark_time = 0.;
     }
-    if game.hint_stage == 0 && game.elapsed > 3.0 && game.moved < 30. {
-        game.say("W A S D    move       or click a destination", 5.);
+    // Record milestones without clearing unrelated pickups or door guidance.
+    if game.hint_stage == 0 && game.moved > 30. {
         game.hint_stage = 1;
     }
-    if game.hint_stage < 2 && game.moved > 115. && game.pulses == 0 && game.message_time <= 0. {
-        game.say("Space    release a pulse", 5.);
+    if game.hint_stage < 2 && game.pulses > 0 {
         game.hint_stage = 2;
     }
-    if game.hint_stage <= 2 && game.room == 2 && game.danger > 0.1 && game.message_time <= 0. {
-        game.say("Hold Shift    extinguish       X    toggle darkness", 6.);
+    if game.hint_stage < 3 && game.room == 2 && game.dark_time > 1. {
         game.hint_stage = 3;
     }
     if game.hint_stage < 4 && game.room == 3 && game.message_time <= 0. {
@@ -945,12 +917,6 @@ fn housekeeping(
             ),
             _ => {}
         }
-    }
-    if (game.hint_stage == 1 && game.moved > 30.)
-        || (game.hint_stage == 2 && game.pulses > 0 && game.message.contains("Space"))
-        || (game.hint_stage == 3 && game.dark_time > 1.)
-    {
-        game.message_time = 0.;
     }
     game.save_clock += dt;
     if game.save_clock > 8. {

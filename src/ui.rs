@@ -100,6 +100,7 @@ fn update(
     mut status_clock: Local<f32>,
     mut frame_average: Local<f32>,
 ) {
+    let playing_hint = crate::guidance::playing_hint(&game, &world);
     for (part, mut text) in &mut texts {
         let content = match part {
             UiPart::Title => {
@@ -157,7 +158,7 @@ fn update(
                         abilities(&game)
                     )
                 }
-                Mode::Playing if game.message_time > 0. => game.message.clone(),
+                Mode::Playing => playing_hint.clone(),
                 _ => String::new(),
             },
             UiPart::Place => {
@@ -211,6 +212,7 @@ fn update(
     #[cfg(target_arch = "wasm32")]
     if let Some(document) = web_sys::window().and_then(|w| w.document()) {
         if let Some(status) = document.get_element_by_id("game-status") {
+            let _ = status.set_attribute("data-hint", &playing_hint);
             status.set_text_content(Some(&format!("{:?}; {}; position {:.0},{:.0}; anchor {}; veil {}; resonators {}; secrets {}; deaths {}; seed {}; frame {:.1}ms",game.mode,world.rooms[game.room].name,game.player.x,game.player.y,game.has_anchor,game.has_veil,game.resonators,game.secrets,game.deaths,world.seed,*frame_average*1000.)));
             let _ = status.set_attribute(
                 "data-camera",

@@ -51,6 +51,8 @@ A fixed world can be selected using `?seed=12345` in the browser or `cargo run -
 
 No health, ammunition, or upgrade-selection HUD. The body's light shows pulse readiness, proximity to danger unsettles it, and charging structures draw a ring around it. Mechanics are introduced by temporary contextual hints and brief ability-acquisition pauses. First contact flashes the traveller and screen edge; a failing lantern pulses and rattles.
 
+Nearby membranes keep their instructions visible until resolved or left behind, even if you used a pulse earlier. Circular membranes respond to Space; thorned membranes need darkness; ribbed membranes with a lantern symbol need a placed lantern's steady light, which a brief pulse cannot supply. The opening also guides movement, the bell and the first creature before releasing you into the Hollow.
+
 ## Journey
 
 The guarded opening teaches movement, pulses, light-reactive membranes and extinction before entering the Hollow. Beyond it lie branching journeys to two abilities, three structures that must be awakened, optional small lights, a large organism, and a return to a final chamber. Both abilities offer additional routes through earlier spaces. Oil flasks extend a placed lantern from 28 to 60 seconds; only one burns at a time. Creatures snuff it after sustained contact. A reusable bell lures creatures without light and can be retrieved. Route stones mark the three main structures separately. Hold R at a structure while meeting its light condition. The memory view contains visited surfaces, surveyed destinations and barrier glyphs; it does not track creatures. Rootwork grips dark feet, stone galleries carry footsteps, and the deep silt holds a shadow that consumes placed light. The Hollow and final passage show three sockets corresponding to the awakened structures.
@@ -89,6 +91,7 @@ After both jobs pass on `main`, GitHub Actions publishes `dist/` to [GitHub Page
 - `src/audio.rs`: recorded foley, creature voices and spatial/music scheduling.
 - `src/save.rs`: versioned native/browser persistence.
 - `src/ui.rs`: sparse game menus and contextual controls.
+- `src/guidance.rs`: obstruction-specific prompts and action-based opening guidance.
 - `src/validation.rs`: adversarial gameplay and progression tests.
 - `web/index.html`: browser loading shell and gesture-based audio unlocking.
 
